@@ -1,0 +1,50 @@
+
+npx sequelize-cli model:generate --name User --attributes \
+  firstName:{type:string, allowNull:false, validate:{notEmpty:true}} \
+  lastName:{type:string, allowNull:false, validate:{notEmpty:true}} \
+  email:{type:string, allowNull:false, unique:true, validate:{isEmail:true}} \
+  age:{type:integer, allowNull:true} \
+  bio:text \
+  isAdmin:{type:boolean, allowNull:false, defaultValue:false} \
+  lastLogin:{type:date, allowNull:true}
+
+
+
+
+'use strict';
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class User extends Model {
+    static associate(models) {
+      User.hasMany(models.Post, { foreignKey: 'userId' });
+    }
+  }
+  User.init({
+    name: DataTypes.STRING
+  }, {
+    sequelize,
+    modelName: 'User',
+  });
+  return User;
+};
+
+
+'use strict';
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class Post extends Model {
+    static associate(models) {
+      Post.belongsTo(models.User, { foreignKey: 'userId' });
+    }
+  }
+  Post.init({
+    title: DataTypes.STRING,
+    content: DataTypes.TEXT
+  }, {
+    sequelize,
+    modelName: 'Post',
+  });
+  return Post;
+};

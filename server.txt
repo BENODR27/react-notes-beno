@@ -1,0 +1,69 @@
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+
+require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 8082;
+
+app.use(cors());
+app.use(express.json());
+
+const uri = process.env.ATLAS_URI;
+mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true }
+);
+
+const connection = mongoose.connection;
+
+connection.once('open', () => {
+  console.log("MongoDB database connection established successfully");
+})
+
+const exercisesRouter = require('./routes/exercises');
+const usersRouter = require('./routes/users');
+
+app.use('/exercises', exercisesRouter);
+app.use('/users', usersRouter);
+
+app.listen(port, () => {
+    console.log(`Server is running on port: ${port}`);
+});
+
+
+
+
+
+
+// Import required modules
+const express = require('express');
+const router = express.Router();
+const { User } = require('../models'); // Assuming you have a User model
+
+// Define route handlers
+router.get('/', async (req, res) => {
+    try {
+        const users = await User.findAll(); // Fetch all users from the database
+        res.json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+router.post('/', async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        const newUser = await User.create({ name, email }); // Create a new user in the database
+        res.status(201).json(newUser);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// Other route handlers for updating, deleting, etc. could go here
+
+// Export router
+module.exports = router;
+
